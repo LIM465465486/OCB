@@ -903,11 +903,6 @@ var MailManager =  AbstractService.extend({
                 args: [[channelID]],
             })
             .then(function (result) {
-                // Prevent to automatically open chat window when a new message
-                // is received on mobile.
-                if (config.device.isMobile) {
-                    options.silent = true;
-                }
                 return self._addChannel(result, options);
             });
     },
@@ -1037,7 +1032,7 @@ var MailManager =  AbstractService.extend({
         this._rpc({
                 model: resModel,
                 method: 'get_formview_id',
-                args: [[resID], session.user_context],
+                args: [[resID], session.user_context.uid],
             })
             .then(function (viewID) {
                 self._redirectToDocument(resModel, resID, viewID);
@@ -1070,7 +1065,7 @@ var MailManager =  AbstractService.extend({
      */
     _redirectPartner: function (resModel, resID, dmRedirection) {
         var self = this;
-        var domain = [['partner_id', '=', resID]];
+        var domain = [['partner_id', '=', resID], ['share', '=', false]];
         this._rpc({
                 model: 'res.users',
                 method: 'search',
@@ -1234,11 +1229,6 @@ var MailManager =  AbstractService.extend({
         var self = this;
         var proms = [];
         const options = {};
-
-        // Prevent to automatically open all chat windows at initial loading.
-        if (config.device.isMobile) {
-            options.silent = true;
-        }
 
         _.each(data.channel_slots, function (channels) {
             _.each(channels, function (channel) {
